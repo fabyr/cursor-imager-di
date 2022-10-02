@@ -50,20 +50,21 @@ Python 3 is required to be installed on your system. (Tested with Python 3.8.10)
 
 ### Linux installation
 (Tested on Linux Mint 20.2)
-Required to be installed on the system: xdotool (`sudo apt install xdotool`)
+Required to be installed on the system:
+- xdotool (`sudo apt install xdotool`)
 
 ```
 git clone https://github.com/fabyr/cursor-imager-di.git
-cd cursor-imager-di-main
+cd cursor-imager-di
 virtualenv env
-source env/bin/activate
+./env/bin/activate
 python -m pip install -r requirements.txt
 
 python gui.py
 ```
 
 ### Windows installation
-**Note:** Not a lot of testing could be done on Windows to ensure proper functionality yet.
+**Note:** Not a lot of testing could be done on Windows to ensure proper functionality in games yet.
 
 Download this repository and extract it to a folder.
 Open command prompt (cmd.exe) in that directory.
@@ -71,8 +72,10 @@ One way to do this is to press `Windows Key + R` and type `cmd.exe` and then OK.
 
 To navigate to said folder type
 ```
-cd Path\To\Extracted\Folder
+C:
+cd C:\Path\To\Extracted\Folder
 ```
+(If on another drive other than `C`, use that drive letter instead)
 
 Then, setup the environment as follows:
 ```
@@ -80,7 +83,13 @@ python -m venv env
 env\Scripts\activate
 python -m pip install -r requirements.txt
 python -m pip install -r windows_requirements.txt
+```
+Start the program using `python gui.py`.
 
+For conveniance a batch file can be created to automatically start it without the
+need to enter the virtual python environment manually:
+```
+call env\Scripts\activate
 python gui.py
 ```
 
