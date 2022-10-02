@@ -50,6 +50,7 @@ Python 3 is required to be installed on your system. (Tested with Python 3.8.10)
 
 ### Linux installation
 (Tested on Linux Mint 20.3)
+
 System Dependencies:
 - xdotool (`sudo apt install xdotool`)
 
