@@ -37,7 +37,7 @@ Then with the press of a selectable hotkey your mouse will be controlled accordi
 After starting the python script you'll be greeted with a Graphical Interace
 allowing you to change some settings.
 Those include things such as:
-- Automatic Edge detection?
+- Edge detection
 - Speed of cursor movement
 - Parameters for controlling the Path-Finding-Algorithm
 - ...
