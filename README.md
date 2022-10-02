@@ -5,14 +5,27 @@ Compatible with both Windows and Linux.
 On Windows DirectInput is used and on Linux xdotool must be installed,
 which even makes it work in most games!
 
+#### Table of contents
+- [Screenshots](#screenshots)
+- [Functionality and how it works](#functionality-and-how-it-works)
+- [Installation](#installation)
+    * [Linux Installation](#linux-installation)
+    * [Windows Installation](#windows-installation)
+- [Motivation](#motivation)
+
 ## Screenshots
 Graphical Interface
+
 ![Interface](/images/gui1.png)
 
 Test Image
+
+[Creator: TomSka](https://www.youtube.com/Tom)
+
 ![Test Image](/images/muffin.png)
 
 Results
+
 ![Results](/images/result1.png)
 
 ## Functionality and how it works
@@ -50,6 +63,8 @@ python gui.py
 ```
 
 ### Windows installation
+**Note:** Not a lot of testing could be done on Windows to ensure proper functionality yet.
+
 Download this repository and extract it to a folder.
 Open command prompt (cmd.exe) in that directory.
 One way to do this is to press `Windows Key + R` and type `cmd.exe` and then OK.
