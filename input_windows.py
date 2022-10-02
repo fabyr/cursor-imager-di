@@ -2,7 +2,7 @@ from input import Input
 import pyautogui
 import pydirectinput
 
-# TODO: This code is not yet checked if functional on windows
+# This code is functional on windows, though terribly slow
 class InputWindows(Input):
     def mouse_up(self) -> None:
         pydirectinput.mouseUp()

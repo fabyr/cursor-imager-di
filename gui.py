@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import filedialog
-from xmlrpc.client import MAXINT
 
 from PIL import ImageTk, Image
 
@@ -8,10 +7,13 @@ import core
 import platform
 import time
 
-import bindglobal as bg
-
 import asyncio
 import threading
+
+# as of right now setting this to False
+# prevents you from using the program,
+# as there is no other mechanism for triggering the drawing process
+USE_GLOBAL_HOTKEYS = True
 
 class CursorImagerGUI:
     def numberValidation(self, s) -> None:
@@ -22,6 +24,8 @@ class CursorImagerGUI:
 
     def __init__(self) -> None:
         self.window = Tk()
+        self.current_hotkey = None
+        self.bg = None
         self.last_press = time.time()
         self.window.title("Cursor Imager")
         self.window.geometry("800x800")
@@ -80,7 +84,7 @@ class CursorImagerGUI:
         self.txtMaxContinous = Entry(self.window, validate="key", vcmd=vcmd, textvariable=self.txtMaxContinousValue)
         self.txtMaxContinous.bind("<KeyRelease>", self.txt_max_continous)
         self.txtMaxContinous.grid(sticky="WE")
-        self.txtMaxContinousValue.set("1000")
+        self.txtMaxContinousValue.set("10000")
 
         self.btnRecalc = Button(self.window, text="(Re)Calculate Image", fg="black", command=self.recalc_image)
         self.btnRecalc.grid(sticky="WE")
@@ -102,7 +106,7 @@ class CursorImagerGUI:
         self.input = None
         pf = platform.system()
 
-        # use different mouse-input-manager depending on the OS
+        # use different "mouse-input-manager" depending on the OS
         if pf == "Linux":
             import input_linux
             self.input = input_linux.InputLinux()
@@ -125,6 +129,7 @@ class CursorImagerGUI:
         self.txt_max_apart(None)
         self.txt_max_continous(None)
 
+        # initialize the drawing machine object and configure callbacks for label updates
         self.drawing_machine = core.DrawingMachine(self.input, self.params)
         self.drawing_machine.done_callback = lambda: self.lblDrawingStatus.configure(text="Done drawing!")
         self.drawing_machine.percentage_callback = lambda x: self.lblDrawingPercentage.configure(text="%.1f%% Done" % (x * 100))
@@ -133,6 +138,7 @@ class CursorImagerGUI:
 
     def button_select_image(self):
         filetypes = [
+            # might add more in the future
             ("Portable Network Graphics", "*.png"),
             ("Joint Photographics Expert Group", "*.jpg")
         ]
@@ -144,8 +150,9 @@ class CursorImagerGUI:
     def recalc_image(self):
         if self.drawing_machine.image_filename:
             self.drawing_machine.image_init(self.drawing_machine.image_filename)
-            global img
-            img = self.drawing_machine.preview()
+            global img # this is critical so the garbage collector does not dispose of the image
+                       # otherwise the displayed "image" will just be blank
+            img = self.drawing_machine.preview(1)
             img = ImageTk.PhotoImage(Image.fromarray(img).convert('RGB'))
             self.imgDisplay.configure(image=img)
     
@@ -201,9 +208,10 @@ class CursorImagerGUI:
             self.drawing_machine.active_change()
 
     def main(self):
-        self.current_hotkey = None
-        self.bg = bg.BindGlobal() # Global hotkeys
-        self.bg.start()
+        if USE_GLOBAL_HOTKEYS:
+            import bindglobal as bg
+            self.bg = bg.BindGlobal() # Global hotkeys
+            self.bg.start()
         self.window.mainloop()
         
 
