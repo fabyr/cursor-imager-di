@@ -5,6 +5,16 @@ Compatible with both Windows and Linux.
 On Windows DirectInput is used and on Linux xdotool must be installed,
 which even makes it work in most games!
 
+## Screenshots
+Graphical Interface
+![Interface](/images/gui1.png)
+
+Test Image
+![Test Image](/images/muffin.png)
+
+Results
+![Results](/images/result1.png)
+
 ## Functionality and how it works
 Any generic image can be loaded, to which, if desired, edge detection is performed, so only lines and not regions are drawn.
 After that a path finding algorithm finds a connected path throughout the entire image.
