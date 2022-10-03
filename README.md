@@ -58,7 +58,7 @@ System Dependencies:
 git clone https://github.com/fabyr/cursor-imager-di.git
 cd cursor-imager-di
 virtualenv env
-./env/bin/activate
+source env/bin/activate
 python -m pip install -r requirements.txt
 
 python gui.py
