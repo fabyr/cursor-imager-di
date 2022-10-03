@@ -179,10 +179,8 @@ class DrawingMachine:
             if self.contour_idx >= len(self.contours): # all contours are finished
                 self.active = False
                 self.reset()
-                print("Done.")
                 self.input.mouse_up()
                 pause()
-                self.done_callback()
             else: # if not all contours are finished, we can do some preparations to go to the starting location of the next contour
                 x2, y2 = self.contour[self.point_idx]
                 x2, y2 = (x2 - self.offset[0], y2 - self.offset[1])
@@ -213,7 +211,7 @@ class DrawingMachine:
             if self.percentage_callback:
                 self.percentage_callback(x)
                 
-    async def thread_loop(self) -> None:
+    def thread_loop(self) -> None:
         """
         Continually calls step in fixed time intervals (DrawingParameters.sleep_between_action).
         Terminates once all contours are finished
@@ -226,7 +224,9 @@ class DrawingMachine:
                 self.step()
             pause(self.parameters.sleep_between_action)
         self.active = False
-        #self.active_change() # don't want to overwrite the text on the GUI "Done"
+        self.active_change()
+        self.done_change()
+        print("Done drawing.")
 
 # i am a novice at numpy
 # this could probably be sped up by a lot if it would make use of some numpy functions

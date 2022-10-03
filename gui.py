@@ -3,11 +3,11 @@ from tkinter import filedialog
 
 from PIL import ImageTk, Image
 
+import os
 import core
 import platform
 import time
 
-import asyncio
 import threading
 
 # as of right now setting this to False
@@ -134,7 +134,7 @@ class CursorImagerGUI:
         self.drawing_machine.done_callback = lambda: self.lblDrawingStatus.configure(text="Done drawing!")
         self.drawing_machine.percentage_callback = lambda x: self.lblDrawingPercentage.configure(text="%.1f%% Done" % (x * 100))
         self.drawing_machine.active_change_callback = lambda: \
-                self.lblDrawingStatus.configure(text=self.lblDrawingText if self.drawing_machine.active else self.lblInitialText)
+        self.lblDrawingStatus.configure(text=self.lblDrawingText if self.drawing_machine.active else self.lblInitialText)
 
     def button_select_image(self):
         filetypes = [
@@ -194,14 +194,14 @@ class CursorImagerGUI:
     def hotkey_callback(self, e):
         print("Hotkey: %s" % e)
         now = time.time()
-        if now - self.last_press < 0.1: # small "debounce" delay
+        if now - self.last_press < 0.25: # small "debounce" delay
             return
         self.last_press = now
 
         # if a drawing process was not started yet, start it
         if self.drawing_machine.exit:
             if self.drawing_machine.image is not None:
-                _thread = threading.Thread(target=asyncio.run, args=(self.drawing_machine.thread_loop(),))
+                _thread = threading.Thread(target=self.drawing_machine.thread_loop)
                 _thread.start()
         else: # if already drawing, toggle pause
             self.drawing_machine.active = not self.drawing_machine.active
@@ -212,8 +212,17 @@ class CursorImagerGUI:
             import bindglobal as bg
             self.bg = bg.BindGlobal() # Global hotkeys
             self.bg.start()
+        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
         self.window.mainloop()
-        
+    
+    def on_close(self):
+        print("Closing.")
+        self.drawing_machine.done_callback = None
+        self.drawing_machine.percentage_callback = None
+        self.drawing_machine.active_change_callback = None
+        self.drawing_machine.exit = True
+        self.window.destroy()
+        os._exit(0) # drawing thread(s) does/do not terminate by itself
 
 if __name__=="__main__":
     CursorImagerGUI().main()
