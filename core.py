@@ -318,7 +318,7 @@ def ridge_simple(image : np.ndarray, max_ridge_distance : int) -> list:
     ridges = []
     for y in range(h):
         for x in range(w):
-            if visited[x, y] == 0 and image[x, y] == 255:
+            if visited[x, y] == 0 and image[x, y] > 127:
                 ridge = single_ridge(image, visited, x, y, max_ridge_distance)
                 ridges.append(ridge)
     return ridges
