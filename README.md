@@ -67,7 +67,6 @@ python gui.py
 ### Windows installation
 **Notes:** 
 - Not a lot of testing could be done on Windows to ensure proper functionality in games yet.
-- Windows Defender often flags the package `bindglobal` as a Keylogger-Virus, because that's exactly what it does: Monitors your keyboard to check whether or not the Hotkey was pressed. In this case you might have to add a defender exclusion to the folder.
 - In the current state the cursor movement is very slow. Due to my limited ability to test on windows there probably won't be a fix for this soon. Help is appreciated though (:
 
 Download this repository and extract it to a folder.
