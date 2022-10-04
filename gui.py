@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 
+from pynput import keyboard # for hotkeys
 from PIL import ImageTk, Image
 
 import os
@@ -9,11 +10,6 @@ import platform
 import time
 
 import threading
-
-# as of right now setting this to False
-# prevents you from using the program,
-# as there is no other mechanism for triggering the drawing process
-USE_GLOBAL_HOTKEYS = True
 
 class CursorImagerGUI:
     def numberValidation(self, s) -> None:
@@ -25,6 +21,7 @@ class CursorImagerGUI:
     def __init__(self) -> None:
         self.window = Tk()
         self.current_hotkey = None
+        self.hotkey_listener = None
         self.bg = None
         self.last_press = time.time()
         self.window.title("Cursor Imager")
@@ -162,10 +159,14 @@ class CursorImagerGUI:
         
         new_hotkey = e.char
 
-        if self.current_hotkey:
-            self.bg.gunbind(self.current_hotkey, self.hotkey_callback)
+        if self.hotkey_listener:
+            self.hotkey_listener.stop()
+            self.hotkey_listener = None
         
-        self.bg.gbind(new_hotkey, self.hotkey_callback)
+        self.hotkey_listener = keyboard.GlobalHotKeys({
+            new_hotkey: self.hotkey_callback
+        })
+        self.hotkey_listener.start()
         self.current_hotkey = new_hotkey
 
     def button_reset(self):
@@ -191,10 +192,10 @@ class CursorImagerGUI:
         str = self.txtMaxContinousValue.get()
         self.params.max_continous_line = 0 if not str else int(str)
 
-    def hotkey_callback(self, e):
-        print("Hotkey: %s" % e)
+    def hotkey_callback(self):
+        print("Hotkey pressed.")
         now = time.time()
-        if now - self.last_press < 0.25: # small "debounce" delay
+        if now - self.last_press < 0.1: # small "debounce" delay
             return
         self.last_press = now
 
@@ -208,10 +209,6 @@ class CursorImagerGUI:
             self.drawing_machine.active_change()
 
     def main(self):
-        if USE_GLOBAL_HOTKEYS:
-            import bindglobal as bg
-            self.bg = bg.BindGlobal() # Global hotkeys
-            self.bg.start()
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
         self.window.mainloop()
     

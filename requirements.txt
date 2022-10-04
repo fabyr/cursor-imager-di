@@ -1,4 +1,4 @@
 opencv-python
 numpy
-bindglobal
+pynput
 pillow
