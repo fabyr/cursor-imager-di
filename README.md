@@ -2,8 +2,8 @@
 
 A tool to draw images using your mouse!
 Compatible with both Windows and Linux.
-On Windows DirectInput is used and on Linux xdotool must be installed,
-which even makes it work in most games!
+On Windows you can choose to use DirectInput (more stable and should work in games) or not.
+On Linux xdotool is used to control the mouse.
 
 #### Table of contents
 - [Screenshots](#screenshots)
@@ -52,7 +52,7 @@ Python 3 is required to be installed on your system. (Tested with Python 3.8.10)
 (Tested on Linux Mint 20.3)
 
 System Dependencies:
-- xdotool (`sudo apt install xdotool`)
+- xdotool (install on debian based systems with `sudo apt install xdotool`)
 
 ```
 git clone https://github.com/fabyr/cursor-imager-di.git
@@ -65,10 +65,6 @@ python gui.py
 ```
 
 ### Windows installation
-**Notes:** 
-- Not a lot of testing could be done on Windows to ensure proper functionality in games yet.
-- In the current state the cursor movement is very slow. Due to my limited ability to test on windows there probably won't be a fix for this soon. Help is appreciated though (:
-
 Download this repository and extract it to a folder.
 Open command prompt (cmd.exe) in that directory.
 One way to do this is to press `Windows Key + R` and type `cmd.exe` and then OK.
