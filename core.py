@@ -47,7 +47,6 @@ class DrawingMachine:
         self.previous_percentage = 0.0
         self.offset = None
         self.image = None
-        self.image_filename = None
         self.raw_contours = None
         self.contours = None
         self.contour = None
@@ -57,13 +56,12 @@ class DrawingMachine:
         self.done_callback = None
         self.percentage_callback = None
     
-    def image_init(self, filename : str) -> None:
+    def image_init(self, input_image) -> None:
         """
         Calling this method will replace the old image (if any) with a new image
         and will perform all necessary calculations to prepare for drawing.
         """
-        self.image_filename = filename
-        image = cv2.imread(filename)
+        image = input_image
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 

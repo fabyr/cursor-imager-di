@@ -2,7 +2,10 @@ from tkinter import *
 from tkinter import filedialog
 
 from pynput import keyboard # for hotkeys
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageGrab
+
+import numpy as np
+import cv2
 
 import os
 import core
@@ -50,7 +53,7 @@ class CursorImagerGUI:
 
         self.btnSelectImage = Button(self.window, text="Select Image", fg="black", command=self.button_select_image)
         self.btnSelectImage.grid(sticky="WE")
-        self.btnFromClipboard = Button(self.window, text="Load from Clipboard", fg="black", command=self.button_select_image)
+        self.btnFromClipboard = Button(self.window, text="Load from Clipboard", fg="black", command=self.button_select_image_clipboard)
         self.btnFromClipboard.grid(sticky="WE")
         self.lblHotkey = Label(self.window, text="Hotkey: ")
         self.lblHotkey.grid(sticky="N")
@@ -148,11 +151,25 @@ class CursorImagerGUI:
         self.txt_max_continous(None)
 
         # initialize the drawing machine object and configure callbacks for label updates
+        self.clipboard_image = None
+        self.image_path = None
+        self.use_clipboard_image = False
         self.drawing_machine = core.DrawingMachine(self.input, self.params)
         self.drawing_machine.done_callback = lambda: self.lblDrawingStatus.configure(text="Done drawing!")
         self.drawing_machine.percentage_callback = lambda x: self.lblDrawingPercentage.configure(text="%.1f%% Done" % (x * 100))
         self.drawing_machine.active_change_callback = lambda: \
         self.lblDrawingStatus.configure(text=self.lblDrawingText if self.drawing_machine.active else self.lblInitialText)
+
+    def button_select_image_clipboard(self):
+        im = ImageGrab.grabclipboard()
+        if im:
+            im = im.convert('RGB')
+            im = np.array(im)
+            im = im[:, :, ::-1].copy()
+            self.clipboard_image = im
+            self.use_clipboard_image = True
+            self.btnFromClipboard.configure(text='Loaded!')
+            self.btnFromClipboard.after(1000, lambda self=self: self.btnFromClipboard.configure(text="Load from Clipboard"))
 
     def button_select_image(self):
         filetypes = [
@@ -162,12 +179,13 @@ class CursorImagerGUI:
         ]
         filename = filedialog.askopenfilename(title="Open Image", filetypes=filetypes)
         if filename:
-            self.drawing_machine.image_filename = filename
-            #self.drawing_machine.image_init(filename)
+            self.image_path = filename
+            self.use_clipboard_image = False
     
     def recalc_image(self):
-        if self.drawing_machine.image_filename:
-            self.drawing_machine.image_init(self.drawing_machine.image_filename)
+        if self.use_clipboard_image or self.image_path:
+            image = self.clipboard_image if self.use_clipboard_image else cv2.imread(self.image_path)
+            self.drawing_machine.image_init(image)
             global img # this is critical so the garbage collector does not dispose of the image
                        # otherwise the displayed "image" will just be blank
             img = self.drawing_machine.preview(1)
