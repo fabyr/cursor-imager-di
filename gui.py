@@ -26,6 +26,21 @@ class CursorImagerGUI:
         self.last_press = time.time()
         self.window.title("Cursor Imager")
         self.window.geometry("800x800")
+        
+        self.input = None
+        self.is_linux = False
+        pf = platform.system()
+
+        # use different "mouse-input-manager" depending on the OS
+        if pf == "Linux":
+            self.is_linux = True
+            import input_linux
+            self.input = input_linux.InputLinux()
+        elif platform.system() == "Windows":
+            import input_windows
+            self.input = input_windows.InputWindows()
+        else:
+            raise Exception("Unsupported Platform")
 
         #################
         ### GUI Setup ###
@@ -35,6 +50,8 @@ class CursorImagerGUI:
 
         self.btnSelectImage = Button(self.window, text="Select Image", fg="black", command=self.button_select_image)
         self.btnSelectImage.grid(sticky="WE")
+        self.btnFromClipboard = Button(self.window, text="Load from Clipboard", fg="black", command=self.button_select_image)
+        self.btnFromClipboard.grid(sticky="WE")
         self.lblHotkey = Label(self.window, text="Hotkey: ")
         self.lblHotkey.grid(sticky="N")
         self.txtSetHotkey = Entry(self.window, text="<None>", fg="black")
@@ -53,7 +70,13 @@ class CursorImagerGUI:
         self.lblScaleInfo.grid(sticky="N")
         self.scaleScaleValue = DoubleVar()
         self.scaleScale = Scale(self.window, from_=1, to=10, orient='horizontal', variable=self.scaleScaleValue, command=self.scale_scale_slide)
-        self.scaleScale.grid(sticky="WE", pady=(0, 15))
+        self.scaleScale.grid(sticky="WE", pady=(0, 0))
+
+        self.lblDecimationInfo = Label(self.window, text="Point Decimation: ")
+        self.lblDecimationInfo.grid(sticky="N")
+        self.scaleDecimationValue = DoubleVar()
+        self.scaleDecimation = Scale(self.window, from_=1, to=25, orient='horizontal', variable=self.scaleDecimationValue, command=self.scale_decimation_slide)
+        self.scaleDecimation.grid(sticky="WE", pady=(0, 0))
         
         self.cbDoEdgeValue = BooleanVar()
         self.cbDoEdge = Checkbutton(self.window, text="Edge detection", variable=self.cbDoEdgeValue, onvalue=True, offvalue=False, command=self.cbDoEdge_press)
@@ -62,6 +85,14 @@ class CursorImagerGUI:
         self.cbInvertValue = BooleanVar()
         self.cbInvert = Checkbutton(self.window, text="Invert", variable=self.cbInvertValue, onvalue=True, offvalue=False, command=self.cbInvert_press)
         self.cbInvert.grid(sticky="NW")
+
+        self.cbRDPValue = BooleanVar()
+        self.cbRDP = Checkbutton(self.window, text="Polyline Simplification", variable=self.cbRDPValue, onvalue=True, offvalue=False, command=self.cbRDP_press)
+        self.cbRDP.grid(sticky="NW")
+
+        self.cbDirectInputValue = BooleanVar()
+        self.cbDirectInput = Checkbutton(self.window, text="Use DirectInput", variable=self.cbDirectInputValue, state='disabled' if self.is_linux else 'normal', onvalue=True, offvalue=False, command=self.cbDirectInput_press)
+        self.cbDirectInput.grid(sticky="NW")
 
         self.lblMaxApartInfo = Label(self.window, text="Max Path Combine Distance: ")
         self.lblMaxApartInfo.grid(sticky="N")
@@ -95,23 +126,13 @@ class CursorImagerGUI:
         self.lblInitialText = "Not drawing."
         self.lblDrawingText = "Drawing in progress..."
         self.lblDrawingStatus = Label(self.window, text=self.lblInitialText)
-        self.lblDrawingStatus.grid(sticky="N", padx=20, pady=20)
+        self.lblDrawingStatus.grid(sticky="N", padx=20, pady=5)
+
+        self.lblPointCount = Label(self.window, text="Point count: 0")
+        self.lblPointCount.grid(sticky="N", padx=20, pady=5)
         
         self.lblDrawingPercentage = Label(self.window, text="0.0% Done")
-        self.lblDrawingPercentage.grid(sticky="N", padx=20, pady=20)
-
-        self.input = None
-        pf = platform.system()
-
-        # use different "mouse-input-manager" depending on the OS
-        if pf == "Linux":
-            import input_linux
-            self.input = input_linux.InputLinux()
-        elif platform.system() == "Windows":
-            import input_windows
-            self.input = input_windows.InputWindows()
-        else:
-            raise Exception("Unsupported Platform")
+        self.lblDrawingPercentage.grid(sticky="N", padx=20, pady=5)
 
         # initialize core drawing functionality
         self.params = core.DrawingParameters()
@@ -152,6 +173,7 @@ class CursorImagerGUI:
             img = self.drawing_machine.preview(1)
             img = ImageTk.PhotoImage(Image.fromarray(img).convert('RGB'))
             self.imgDisplay.configure(image=img)
+            self.lblPointCount.configure(text=f"Point count: {sum([len(x) for x in self.drawing_machine.contours])}")
     
     def txt_hotkey_type(self, e):
         self.txtSetHotkey.delete(0, END)
@@ -176,7 +198,10 @@ class CursorImagerGUI:
         self.params.sleep_between_action = 1.0 / self.scaleSpeedValue.get() * 0.02;
 
     def scale_scale_slide(self, e):
-        self.params.scale = int(self.scaleScaleValue.get());
+        self.params.scale = int(self.scaleScaleValue.get())
+    
+    def scale_decimation_slide(self, e):
+        self.params.decimate = int(self.scaleDecimationValue.get())
 
     def cbDoEdge_press(self):
         self.params.do_edge = self.cbDoEdgeValue.get()
@@ -184,6 +209,12 @@ class CursorImagerGUI:
     def cbInvert_press(self):
         self.params.invert = self.cbInvertValue.get()
 
+    def cbDirectInput_press(self):
+        self.input.direct = self.cbDirectInputValue.get()
+    
+    def cbRDP_press(self):
+        self.params.rdp = self.cbRDPValue.get()
+        
     def txt_max_apart(self, e):
         str = self.txtMaxApartValue.get()
         self.params.path_max_apart = 0 if not str else int(str)
