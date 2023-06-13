@@ -23,6 +23,7 @@ class DrawingParameters:
     max_continous_line: int
     decimate: int
     rdp: bool # Use Ramer-Douglas-Peucker Algorithm for polyline simplification
+    sort_contours_nearest: bool
 
     def default(self):
         self.do_edge = True
@@ -35,6 +36,7 @@ class DrawingParameters:
         self.max_continous_line = 500
         self.decimate = 1
         self.rdp = False
+        self.sort_contours_nearest = True
 
 class DrawingMachine:
     def __init__(self, input : Input, params : DrawingParameters) -> None:
@@ -78,7 +80,19 @@ class DrawingMachine:
         if self.parameters.rdp:
             self.raw_contours = [rdp.rdp(x) for x in self.raw_contours]
         self.image = image
-
+        
+        if self.parameters.sort_contours_nearest:
+            raw_contours_new = []
+            raw_contours = self.raw_contours.copy()
+            last_point  = (0, 0)
+            for i in range(len(raw_contours)):
+                nearest_index = min(range(len(raw_contours)), key=lambda j: (raw_contours[j][0][0] - last_point[0]) * (raw_contours[j][0][0] - last_point[0]) + \
+                                                                (raw_contours[j][0][1] - last_point[1]) * (raw_contours[j][0][1] - last_point[1]))
+                nearest_contour = raw_contours.pop(nearest_index)
+                raw_contours_new.append(nearest_contour)
+                last_point = nearest_contour[-1]
+            self.raw_contours = raw_contours_new
+        
         processed = []
 
         self.total_points = 0
@@ -155,6 +169,8 @@ class DrawingMachine:
         Automatically rolls over to the next contour if the current one is exhausted.
         """
         if self.point_idx == 0:
+            if self.contour_idx == 0:
+                self.input.mouse_move_relative(*self.offset) # at first start, move the cursor away so that its original position denotes the top-left image corner
             self.input.mouse_down()
             pause()
         self.drawn_points += 1
