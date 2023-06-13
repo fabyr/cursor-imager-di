@@ -2,6 +2,8 @@ from input import Input
 import numpy as np
 import cv2
 import time
+import scipy.signal
+import rdp
 
 action_delay = 0.1
 
@@ -19,6 +21,8 @@ class DrawingParameters:
     path_max_apart: int
     sleep_between_action: float
     max_continous_line: int
+    decimate: int
+    rdp: bool # Use Ramer-Douglas-Peucker Algorithm for polyline simplification
 
     def default(self):
         self.do_edge = True
@@ -29,6 +33,8 @@ class DrawingParameters:
         self.path_max_apart = 3
         self.sleep_between_action = 0.001
         self.max_continous_line = 500
+        self.decimate = 1
+        self.rdp = False
 
 class DrawingMachine:
     def __init__(self, input : Input, params : DrawingParameters) -> None:
@@ -69,6 +75,10 @@ class DrawingMachine:
                                 threshold2=self.parameters.edge_threshold2)
         
         self.raw_contours = ridge_simple(image, self.parameters.path_max_apart)
+        if self.parameters.decimate > 1:
+            self.raw_contours = [scipy.signal.decimate(np.array(x), min(self.parameters.decimate, len(x)), axis=0) if len(x) > 27 else x[:-self.parameters.decimate:self.parameters.decimate] for x in self.raw_contours]
+        if self.parameters.rdp:
+            self.raw_contours = [rdp.rdp(x) for x in self.raw_contours]
         self.image = image
 
         processed = []
