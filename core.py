@@ -57,6 +57,8 @@ class DrawingMachine:
         self.active_change_callback = None
         self.done_callback = None
         self.percentage_callback = None
+        self.max_point = (0, 0)
+        self.min_point = (0, 0)
     
     def image_init(self, input_image) -> None:
         """
@@ -103,7 +105,24 @@ class DrawingMachine:
                 self.total_points += len(contour)
         self.contours = processed
 
-        self.offset = processed[0][0] # the first point determines the offset
+        maxx, maxy = (0, 0)
+        minx, miny = (65535, 65535)
+        # find required dimensions for the output image (min and max search for the point-extrema)
+        for contour in self.contours:
+            y, x = np.max(contour, axis=0)
+            ym, xm = np.min(contour, axis=0)
+            if x > maxx:
+                maxx = x
+            if xm < minx:
+                minx = xm
+            if y > maxy:
+                maxy = y
+            if ym < miny:
+                miny = ym
+        self.max_point = (maxx, maxy)
+        self.min_point = (minx, miny)
+
+        self.offset = (processed[0][0][0] - self.min_point[0], processed[0][0][1] - self.min_point[1]) # the first point determines the offset
         self.reset()
 
     def fetch_contour(self) -> None:
@@ -131,24 +150,14 @@ class DrawingMachine:
         If scale is supplied with None, the value will be taken from the supplied
         DrawingParameters
         """
-        maxx, maxy = (0, 0)
-        minx, miny = (65535, 65535)
         if not scale:
-            scale = self.parameters.scale
-        # find required dimensions for the output image (min and max search for the point-extrema)
-        for contour in self.contours:
-            y, x = np.max(contour, axis=0)
-            ym, xm = np.min(contour, axis=0)
-            if x > maxx:
-                maxx = x
-            if xm < minx:
-                minx = xm
-            if y > maxy:
-                maxy = y
-            if ym < miny:
-                miny = ym
-        maxx, maxy = ((maxx) * scale, (maxy) * scale)
-        minx, miny = ((minx) * scale, (miny) * scale)
+            scale = 1
+        maxx, maxy = self.max_point
+        minx, miny = self.min_point
+        maxx = maxx * scale
+        maxy = maxy * scale
+        minx = minx * scale
+        miny = miny * scale
 
         # make a black image
         image = np.zeros((int(maxx-minx), int(maxy-miny), 3), np.uint8)
