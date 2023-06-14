@@ -170,7 +170,7 @@ class DrawingMachine:
         """
         if self.point_idx == 0:
             if self.contour_idx == 0:
-                self.input.mouse_move_relative(*self.offset) # at first start, move the cursor away so that its original position denotes the top-left image corner
+                self.input.mouse_move_relative(self.offset[0] * self.parameters.scale, self.offset[1] * self.parameters.scale) # at first start, move the cursor away so that its original position denotes the top-left image corner
             self.input.mouse_down()
             pause()
         self.drawn_points += 1
