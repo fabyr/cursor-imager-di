@@ -79,6 +79,7 @@ class DrawingMachine:
         self.raw_contours = ridge_simple(image, self.parameters.path_max_apart)
         if self.parameters.decimate > 1:
             self.raw_contours = [scipy.signal.decimate(np.array(x), min(self.parameters.decimate, len(x)), axis=0) if len(x) > 27 else x[:-self.parameters.decimate:self.parameters.decimate] for x in self.raw_contours]
+            self.raw_contours = list(filter(lambda x: len(x) > 0, self.raw_contours))
         if self.parameters.rdp:
             self.raw_contours = [rdp.rdp(x) for x in self.raw_contours]
         self.image = image
