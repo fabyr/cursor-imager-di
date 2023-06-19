@@ -21,6 +21,8 @@ class InputWindows(Input):
         else:
             pyautogui.mouseDown()
     def mouse_move_relative(self, dx : int, dy : int) -> None:
+        dx = int(dx)
+        dy = int(dy)
         if self.direct:
             pydirectinput.moveRel(dx, dy)
         else:
