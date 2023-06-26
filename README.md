@@ -52,7 +52,8 @@ Python 3 is required to be installed on your system. (Tested with Python 3.8.10)
 (Tested on Linux Mint 20.3)
 
 System Dependencies:
-- xdotool (install on debian based systems with `sudo apt install xdotool`)
+- xdotool and xclip (install on debian based systems with `sudo apt install xdotool xclip`)
+- xclip is needed for loading images from clipboard
 
 ```
 git clone https://github.com/fabyr/cursor-imager-di.git
