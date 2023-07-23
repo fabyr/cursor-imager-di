@@ -5,6 +5,8 @@ Compatible with both Windows and Linux.
 On Windows you can choose to use DirectInput (more stable and should work in games) or not.
 On Linux xdotool is used to control the mouse.
 
+Uses [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) for a fancy GUI.
+
 #### Table of contents
 - [Screenshots](#screenshots)
 - [Functionality and how it works](#functionality-and-how-it-works)
@@ -42,6 +44,9 @@ Those include things such as:
 - Parameters for controlling the Path-Finding-Algorithm
 - ...
 
+The default parameters are fine in most cases. For most images enabling `Edge Detection`
+is preferrable.
+
 ## Installation
 This program works both on Windows and Linux.
 Python 3 is required to be installed on your system. (Tested with Python 3.8.10)
@@ -52,13 +57,16 @@ Python 3 is required to be installed on your system. (Tested with Python 3.8.10)
 (Tested on Linux Mint 20.3)
 
 System Dependencies:
-- xdotool and xclip (install on debian based systems with `sudo apt install xdotool xclip`)
-- xclip is needed for loading images from clipboard
+- `xdotool` is needed for moving the mouse
+- `xclip` is needed for loading images from clipboard
+- `python3-tk` for **tkinter** support
+
+⮕ install on debian based systems with `sudo apt install xdotool xclip python3-tk`
 
 ```
 git clone https://github.com/fabyr/cursor-imager-di.git
 cd cursor-imager-di
-virtualenv env
+python3 -m venv env
 source env/bin/activate
 python -m pip install -r requirements.txt
 
