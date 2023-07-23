@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
 from pynput import keyboard # for hotkeys
-from PIL import ImageTk, Image, ImageGrab
+from PIL import Image, ImageGrab
 
 import numpy as np
 import cv2
@@ -176,9 +176,12 @@ class CursorImagerGUI:
     def button_select_image_clipboard(self):
         im = ImageGrab.grabclipboard()
         if im:
-            im = im.convert('RGB')
-            im = np.array(im)
-            im = im[:, :, ::-1].copy()
+            if type(im) == list:
+                im = cv2.imread(im[0])
+            else:
+                im = im.convert('RGB')
+                im = np.array(im)
+                im = im[:, :, ::-1].copy()
             self.clipboard_image = im
             self.use_clipboard_image = True
             self.btnFromClipboard.configure(text='Loaded!')
